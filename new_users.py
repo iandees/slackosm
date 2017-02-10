@@ -97,13 +97,17 @@ def get_changeset(changeset_id):
 
 def update_feeds(new_users):
     try:
-        existing_geojson = s3.get_object(
+        gz = StringIO.StringIO()
+        s3.download_fileobj(
             Bucket=existing_user_bucket,
             Key=new_users_key,
+            Fileobj=gz,
         )
-        existing_geojson = json.load(existing_geojson['Body'])
+        gz.seek(0)
+        gz_obj = gzip.GzipFile(fileobj=gz, mode='r')
+        existing_geojson = json.load(gz_obj)
     except:
-        logger.info("Creating new users geojson for the first time")
+        logger.exception("Creating new users geojson for the first time")
         existing_geojson = {
             "type": "FeatureCollection",
             "features": [],
@@ -158,9 +162,9 @@ def update_feeds(new_users):
     gz_obj.close()
     gz.seek(0)
     s3.upload_fileobj(
-        gz,
-        existing_user_bucket,
-        new_users_key,
+        Fileobj=gz,
+        Bucket=existing_user_bucket,
+        Key=new_users_key,
         ExtraArgs={
             "ACL": 'public-read',
             "ContentType": 'application/json',
