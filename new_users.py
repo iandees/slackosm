@@ -74,7 +74,10 @@ def get_way_center(way_id):
             lon_sum += obj.lon
             n += 1
 
-    return [lon_sum / n, lat_sum / n]
+    return {
+        'type': 'Point',
+        'coordinates': [lon_sum / n, lat_sum / n]
+    }
 
 
 def get_geometry(obj):
