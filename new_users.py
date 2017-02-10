@@ -135,7 +135,7 @@ def update_feeds(new_users):
         pip = get_pip(geometry)
         if pip:
             valid_places = filter(
-                lambda p: p['Placetype'] in ('country', 'region', 'locality'),
+                lambda p: p['Placetype'] in ('country', 'region', 'county', 'locality'),
                 pip,
             )
 
