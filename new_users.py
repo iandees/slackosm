@@ -57,6 +57,7 @@ def push_existing_users(existing_user_bloom, sqn):
 
 
 def get_way_center(way_id):
+    logger.info("Looking for center of way %s", way_id)
     resp = requests.get(
         'https://api.openstreetmap.org/api/0.6/way/{}/full'.format(way_id),
         stream=True,
@@ -119,6 +120,35 @@ def get_changeset(changeset_id):
     return cs
 
 
+def find_representative_change(changes):
+    # In a list of (verb, obj) tuples, find something that's useful
+    # to represent the list of changes.
+
+    # Order of preference:
+    # 1. a node create/edit
+    # 2. a way create/edit
+    # 3. a node delete
+    # 4. a relation
+
+    def ordering_fn(tpl):
+        if tpl[0] in ('create', 'modify'):
+            if isinstance(tpl[1], pyosm.model.Node):
+                return 1
+            elif isinstance(tpl[1], pyosm.model.Way):
+                return 2
+        elif tpl[0] in ('delete',):
+            if isinstance(tpl[1], pyosm.model.Node):
+                return 3
+            else:
+                return 4
+        else:
+            return 5
+
+    ordered_changes = sorted(changes, key=ordering_fn)
+
+    return ordered_changes[0]
+
+
 def update_feeds(new_users):
     try:
         gz = StringIO.StringIO()
@@ -137,7 +167,8 @@ def update_feeds(new_users):
             "features": [],
         }
 
-    for uid, obj in new_users:
+    for uid, changes in new_users.items():
+        verb, obj = find_representative_change(changes)
         geometry = get_geometry(obj)
 
         properties = {
@@ -199,27 +230,43 @@ def update_feeds(new_users):
 
 def main():
     existing, start_sqn = load_existing_users()
-    new_users = []
+    user_to_objects = {}
 
     logger.info("Starting at sequence %s", start_sqn)
 
     for verb, obj in iter_osm_stream(start_sqn=start_sqn):
         if isinstance(obj, pyosm.model.Finished):
-            if new_users:
-                update_feeds(new_users)
+            # Strip out any users that made changes this minute
+            # who we've seen before
+            for uid, changes in user_to_objects.items():
+                if uid in existing:
+                    del user_to_objects[uid]
+                else:
+                    existing.add(uid)
+                    logger.info(
+                        "New user %s found in changeset %s",
+                        uid, changes[0][1].changeset
+                    )
+
+            # If we end up with users we haven't seen before,
+            # add them to the feed of new users
+            if user_to_objects:
+                update_feeds(user_to_objects)
                 push_existing_users(existing, obj.sequence)
-                new_users = []
+                user_to_objects = {}
+
             logger.info("Finished processing sequence %s", obj.sequence)
+
             if (datetime.datetime.utcnow() - obj.timestamp).total_seconds() < 90:
                 push_existing_users(existing, obj.sequence)
                 logger.info("Done for now. Exiting.")
                 break
             continue
 
-        if obj.uid not in existing:
-            logger.info("New user found: %s", obj.uid)
-            new_users.append((obj.uid, obj))
-            existing.add(obj.uid)
+        # Keep track of uid and their changes
+        user_change_list = user_to_objects.get(obj.uid) or []
+        user_change_list.append((verb, obj))
+        user_to_objects[obj.uid] = user_change_list
 
 
 if __name__ == '__main__':
