@@ -174,6 +174,7 @@ def main():
                 new_users = []
             logger.info("Finished processing sequence %s", obj.sequence)
             if (datetime.datetime.utcnow() - obj.timestamp).total_seconds() < 90:
+                push_existing_users(existing, obj.sequence)
                 logger.info("Done for now. Exiting.")
                 break
             continue
