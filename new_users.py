@@ -8,6 +8,7 @@ import json
 import logging
 import sys
 import requests
+import gzip
 
 logger = logging.getLogger('osm')
 logger.setLevel(logging.DEBUG)
@@ -18,7 +19,7 @@ logger.addHandler(ch)
 s3 = boto3.client('s3')
 existing_user_bucket = 'data.openstreetmap.us'
 existing_user_key = 'users/existing_users.bloom'
-new_users_key = 'users/latest.json'
+new_users_key = 'users/newest.json'
 
 
 def load_existing_users():
@@ -150,13 +151,21 @@ def update_feeds(new_users):
     # TODO: Prune off the last features if they're too old?
     # TODO: Put together files of new users by day here?
     logger.info("Appending %s new users to new-users geojson", len(new_users))
-    geojson = json.dumps(existing_geojson, indent=4)
-    s3.put_object(
-        Bucket=existing_user_bucket,
-        Key=new_users_key,
-        Body=geojson,
-        ACL='public-read',
-        ContentType='application/json',
+    # geojson = json.dumps(existing_geojson, separators=(',', ':'))
+    gz = StringIO.StringIO()
+    gz_obj = gzip.GzipFile(fileobj=gz, mode='w')
+    json.dump(existing_geojson, gz_obj, separators=(',', ':'))
+    gz_obj.close()
+    gz.seek(0)
+    s3.upload_fileobj(
+        gz,
+        existing_user_bucket,
+        new_users_key,
+        ExtraArgs={
+            "ACL": 'public-read',
+            "ContentType": 'application/json',
+            "ContentEncoding": 'gzip',
+        },
     )
 
 
