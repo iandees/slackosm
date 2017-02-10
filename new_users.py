@@ -1,3 +1,4 @@
+from lxml import etree
 from pyosm.parsing import iter_osm_stream, iter_osm_file
 from pybloom import ScalableBloomFilter
 import datetime
@@ -55,12 +56,32 @@ def push_existing_users(existing_user_bloom, sqn):
     )
 
 
+def get_way_center(way_id):
+    resp = requests.get(
+        'https://api.openstreetmap.org/api/0.6/way/{}/full'.format(way_id),
+        stream=True,
+    )
+    resp.raw.decode_content = True
+
+    # Yes I know this is terrible.
+    lat_sum = 0
+    lon_sum = 0
+    n = 0
+
+    for obj in iter_osm_file(resp.raw):
+        if isinstance(obj, pyosm.model.Node):
+            lat_sum += obj.lat
+            lon_sum += obj.lon
+            n += 1
+
+    return [lon_sum / n, lat_sum / n]
+
+
 def get_geometry(obj):
     if isinstance(obj, pyosm.model.Node):
         pt = {'type': 'Point', 'coordinates': [obj.lon, obj.lat]}
     elif isinstance(obj, pyosm.model.Way):
-        # TODO Get first node for the way
-        pt = None
+        return get_way_center(obj.id)
     elif isinstance(obj, pyosm.model.Relation):
         # TODO Get first node for the first member of the relation
         pt = None
