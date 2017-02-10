@@ -1,5 +1,6 @@
 from pyosm.parsing import iter_osm_stream, iter_osm_file
 from pybloom import ScalableBloomFilter
+import datetime
 import pyosm.model
 import boto3
 import cStringIO as StringIO
@@ -172,6 +173,9 @@ def main():
                 push_existing_users(existing, obj.sequence)
                 new_users = []
             logger.info("Finished processing sequence %s", obj.sequence)
+            if (datetime.datetime.utcnow() - obj.timestamp).total_seconds() < 90:
+                logger.info("Done for now. Exiting.")
+                break
             continue
 
         if obj.uid not in existing:
