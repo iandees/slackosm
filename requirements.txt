@@ -7,7 +7,7 @@ futures==3.0.5
 jmespath==0.9.1
 lxml==3.2.3
 packaging==16.8
-git+https://github.com/jaybaird/python-bloomfilter.git
+git+https://github.com/jaybaird/python-bloomfilter.git@2bbe01ad
 pyosm==0.3.4
 pyparsing==2.1.10
 python-dateutil==2.6.0
