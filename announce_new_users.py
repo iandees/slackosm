@@ -52,7 +52,7 @@ for feature in reversed(features):
         if inside:
             contains = dict([(c['type'], c['name']) for c in inside])
             locations = []
-            for t in ('locality', 'county', 'state', 'country'):
+            for t in ('locality', 'region'):
                 locations.append(contains.get(t))
             locations = filter(None, locations)
             location_str = ', '.join(locations)
