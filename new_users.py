@@ -1,5 +1,6 @@
 from pyosm.parsing import iter_osm_stream, iter_osm_file
 from pybloom import ScalableBloomFilter
+import arrow
 import datetime
 import pyosm.model
 import boto3
@@ -207,9 +208,9 @@ def update_feeds(new_users):
         existing_geojson.get('features').insert(0, feature)
 
     # Chop off the features more than a day old
-    now = datetime.datetime.utcnow()
+    now = arrow.get()
     existing_geojson['features'] = filter(
-        lambda t: (now-t).days == 0,
+        lambda t: (now-arrow.get(t['properties']['timestamp'])).days == 0,
         existing_geojson['features']
     )
 
