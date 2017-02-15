@@ -1,4 +1,3 @@
-from lxml import etree
 from pyosm.parsing import iter_osm_stream, iter_osm_file
 from pybloom import ScalableBloomFilter
 import datetime
@@ -207,7 +206,13 @@ def update_feeds(new_users):
 
         existing_geojson.get('features').insert(0, feature)
 
-    # TODO: Prune off the last features if they're too old?
+    # Chop off the features more than a day old
+    now = datetime.datetime.utcnow()
+    existing_geojson['features'] = filter(
+        lambda t: (now-t).days == 0,
+        existing_geojson['features']
+    )
+
     # TODO: Put together files of new users by day here?
     logger.info("Appending %s new users to new-users geojson", len(new_users))
     # geojson = json.dumps(existing_geojson, separators=(',', ':'))
