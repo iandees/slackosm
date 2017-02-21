@@ -64,6 +64,36 @@ def get_way_center(way_id):
     )
     resp.raw.decode_content = True
 
+    if resp.status_code == 410:
+        logger.info("Way %s was deleted, looking for most recent not-deleted version", way_id)
+
+        resp = requests.get(
+            'https://api.openstreetmap.org/api/0.6/way/{}/histroy'.format(way_id),
+            stream=True,
+        )
+        resp.raw.decode_content = True
+        visible_versions = filter(
+            lambda o: o.visible, [obj for obj in iter_osm_file(resp.raw)]
+        )
+        visible_version = visible_versions[-1]
+
+        # Get the way version so we know the node IDs
+        resp = requests.get(
+            'https://api.openstreetmap.org/api/0.6/way/{}/{}'.format(
+                way_id, visible_version.version),
+            stream=True,
+        )
+        resp.raw.decode_content = True
+        visible_way = [obj for obj in iter_osm_file(resp.raw)][0]
+
+        # Get the nodes for the way
+        resp = requests.get(
+            'https://api.openstreetmap.org/api/0.6/nodes',
+            params={'nodes': ','.join([str(n) for n in visible_way.nds])},
+            stream=True,
+        )
+        resp.raw.decode_content = True
+
     # Yes I know this is terrible.
     lat_sum = 0
     lon_sum = 0
