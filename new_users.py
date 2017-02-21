@@ -68,7 +68,7 @@ def get_way_center(way_id):
         logger.info("Way %s was deleted, looking for most recent not-deleted version", way_id)
 
         resp = requests.get(
-            'https://api.openstreetmap.org/api/0.6/way/{}/histroy'.format(way_id),
+            'https://api.openstreetmap.org/api/0.6/way/{}/history'.format(way_id),
             stream=True,
         )
         resp.raw.decode_content = True
@@ -76,6 +76,9 @@ def get_way_center(way_id):
             lambda o: o.visible, [obj for obj in iter_osm_file(resp.raw)]
         )
         visible_version = visible_versions[-1]
+
+        logger.info("Using version %s of way %s",
+                    visible_version.version, visible_version.id)
 
         # Get the way version so we know the node IDs
         resp = requests.get(
@@ -100,7 +103,7 @@ def get_way_center(way_id):
     n = 0
 
     for obj in iter_osm_file(resp.raw):
-        if isinstance(obj, pyosm.model.Node):
+        if isinstance(obj, pyosm.model.Node) and obj.visible:
             lat_sum += obj.lat
             lon_sum += obj.lon
             n += 1
