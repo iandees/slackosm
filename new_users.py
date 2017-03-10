@@ -73,14 +73,16 @@ def get_way_center(way_id):
         )
         resp.raw.decode_content = True
         visible_versions = filter(
-            lambda o: o.visible, [obj for obj in iter_osm_file(resp.raw)]
+            lambda o: o.visible,
+            (obj for obj in iter_osm_file(resp.raw)),
         )
         visible_version = visible_versions[-1]
 
         logger.info("Using version %s of way %s",
                     visible_version.version, visible_version.id)
 
-        # Get the way version so we know the node IDs
+        # Get the way version so we know the node IDs.
+        # /way/<>/history doesn't give us nd elements
         resp = requests.get(
             'https://api.openstreetmap.org/api/0.6/way/{}/{}'.format(
                 way_id, visible_version.version),
@@ -90,27 +92,49 @@ def get_way_center(way_id):
         visible_way = [obj for obj in iter_osm_file(resp.raw)][0]
 
         # Get the nodes for the way
-        resp = requests.get(
-            'https://api.openstreetmap.org/api/0.6/nodes',
-            params={'nodes': ','.join([str(n) for n in visible_way.nds])},
-            stream=True,
+        nodes_to_average = []
+        for nd in visible_way.nds:
+            logger.info("Looking for location of node %s", nd)
+            resp = requests.get(
+                'https://api.openstreetmap.org/api/0.6/node/{}/history'.format(
+                    nd),
+                stream=True,
+            )
+            resp.raw.decode_content = True
+
+            # Pick the node version that was visible immediately
+            # before the timestamp of the way
+            keep_node = None
+            for nd_hist in iter_osm_file(resp.raw):
+                if nd_hist.visible and \
+                   nd_hist.timestamp <= visible_way.timestamp:
+                    keep_node = nd_hist
+
+            logger.info("Using node %s/%s", keep_node.id, keep_node.version)
+            nodes_to_average.append(keep_node)
+
+    else:
+        nodes_to_average = filter(
+            lambda o: isinstance(o, pyosm.model.Node),
+            (obj for obj in iter_osm_file(resp.raw)),
         )
-        resp.raw.decode_content = True
 
     # Yes I know this is terrible.
     lat_sum = 0
     lon_sum = 0
     n = 0
 
-    for obj in iter_osm_file(resp.raw):
-        if isinstance(obj, pyosm.model.Node) and obj.visible:
-            lat_sum += obj.lat
-            lon_sum += obj.lon
-            n += 1
+    for obj in nodes_to_average:
+        lat_sum += obj.lat
+        lon_sum += obj.lon
+        n += 1
+
+    lon = lon_sum / n
+    lat = lat_sum / n
 
     return {
         'type': 'Point',
-        'coordinates': [lon_sum / n, lat_sum / n]
+        'coordinates': [lon, lat]
     }
 
 
