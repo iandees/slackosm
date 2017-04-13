@@ -56,7 +56,7 @@ for feature in reversed(features):
                 locations.append(contains.get(t))
             locations = filter(None, locations)
             location_str = ', '.join(locations)
-            location_str = ' in {}!'.format(location_str)
+            location_str = u' in {}!'.format(location_str)
         else:
             location_str = '!'
 
