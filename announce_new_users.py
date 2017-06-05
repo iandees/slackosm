@@ -29,7 +29,7 @@ def interesting_change(feature):
     if not contains:
         return False
 
-    if filter(lambda c: c['wof:id'] == 85633793, contains):
+    if filter(lambda c: c['wof:id'] in [85633793,85633041], contains):
         return True
     else:
         return False
