@@ -164,7 +164,7 @@ def get_pip(geometry):
 
     resp.raise_for_status()
 
-    return resp.json()
+    return resp.json()['places']
 
 
 def get_changeset(changeset_id):
