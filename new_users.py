@@ -162,6 +162,8 @@ def get_pip(geometry):
         params=dict(latitude=lat, longitude=lon)
     )
 
+    resp.raise_for_status()
+
     return resp.json()
 
 
