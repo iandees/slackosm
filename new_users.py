@@ -250,12 +250,12 @@ def update_feeds(new_users):
         pip = get_pip(geometry)
         if pip:
             valid_places = filter(
-                lambda p: p['Placetype'] in ('country', 'region', 'county', 'locality'),
+                lambda p: p['wof:placetype'] in ('country', 'region', 'county', 'locality'),
                 pip,
             )
 
             properties['inside'] = [
-                {'type': p['Placetype'], 'wof:id': p['Id'], 'name': p['Name']}
+                {'type': p['wof:placetype'], 'wof:id': p['wof:id'], 'name': p['wof:name']}
                 for p in valid_places
             ]
 
