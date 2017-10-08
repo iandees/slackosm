@@ -246,6 +246,7 @@ def update_feeds(new_users):
                 "tags": dict([(t.key, t.value) for t in cs.tags]),
             }
 
+        logger.info("Geometry: %s", geometry)
         pip = get_pip(geometry)
         if pip:
             valid_places = filter(
