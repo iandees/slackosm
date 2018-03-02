@@ -158,13 +158,14 @@ def get_pip(geometry):
     lon = geometry['coordinates'][0]
 
     resp = requests.get(
-        'https://pip.mapzen.com/',
-        params=dict(latitude=lat, longitude=lon)
+        'https://nominatim.openstreetmap.org/reverse',
+        params=dict(format='json', lat=lat, lon=lon),
+        headers={'User-Agent': 'slackosm (https://github.com/iandees/slackosm)'},
     )
 
     resp.raise_for_status()
 
-    return resp.json()['places']
+    return resp.json()
 
 
 def get_changeset(changeset_id):
@@ -248,16 +249,10 @@ def update_feeds(new_users):
 
         logger.info("Geometry: %s", geometry)
         pip = get_pip(geometry)
-        if pip:
-            valid_places = filter(
-                lambda p: p['wof:placetype'] in ('country', 'region', 'county', 'locality'),
-                pip,
-            )
-
-            properties['inside'] = [
-                {'type': p['wof:placetype'], 'wof:id': p['wof:id'], 'name': p['wof:name']}
-                for p in valid_places
-            ]
+        address = pip.get('address')
+        if address:
+            address.pop('road', None)
+            properties['inside'] = address
 
         feature = {
             "type": "Feature",

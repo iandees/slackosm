@@ -29,10 +29,7 @@ def interesting_change(feature):
     if not contains:
         return False
 
-    if filter(lambda c: c['wof:id'] in [85633793,85633041], contains):
-        return True
-    else:
-        return False
+    return contains.get('country_code') in ('us', 'ca')
 
 
 features = requests.get(new_user_json_url).json()
