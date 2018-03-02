@@ -249,7 +249,7 @@ def update_feeds(new_users):
 
         logger.info("Geometry: %s", geometry)
         pip = get_pip(geometry)
-        address = pip.get('address')
+        address = pip.get('address') if pip else None
         if address:
             address.pop('road', None)
             properties['inside'] = address
