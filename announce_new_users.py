@@ -47,10 +47,9 @@ for feature in reversed(features):
 
         inside = props.get('inside')
         if inside:
-            contains = dict([(c['type'], c['name']) for c in inside])
             locations = []
-            for t in ('locality', 'region'):
-                locations.append(contains.get(t))
+            for t in ('city', 'town', 'hamlet', 'locality', 'state'):
+                locations.append(inside.get(t))
             locations = filter(None, locations)
             location_str = ', '.join(locations)
             location_str = u' in {}!'.format(location_str)
