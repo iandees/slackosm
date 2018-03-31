@@ -159,7 +159,7 @@ def get_pip(geometry):
 
     resp = requests.get(
         'https://nominatim.openstreetmap.org/reverse',
-        params=dict(format='json', lat=lat, lon=lon),
+        params=dict(format='json', lat='%0.6f' % lat, lon='%0.6f' % lon),
         headers={'User-Agent': 'slackosm (https://github.com/iandees/slackosm)'},
     )
 
