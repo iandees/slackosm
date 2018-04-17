@@ -57,14 +57,13 @@ for feature in reversed(features):
             location_str = '!'
 
         send_to_slack(
-            u"`<https://www.openstreetmap.org/user/{}|{}>` just made "
-            "their <https://www.openstreetmap.org/changeset/{}|first edit>{}"
-            " (<https://osmcha.mapbox.com/changesets/{}|OSMCha>)".format(
-                props.get('user').get('name'),
-                props.get('user').get('name'),
-                props.get('changeset').get('id'),
-                location_str,
-                props.get('changeset').get('id'),
+            u"`<https://www.openstreetmap.org/user/{username}|{username}>` just made "
+            "their <https://www.openstreetmap.org/changeset/{changeset_id}|first edit>{location_str}"
+            " (<https://osmcha.mapbox.com/changesets/{changeset_id}?filters="
+            "%7B\"users\"%3A%5B%7B\"label\"%3A\"{username}\"%2C\"value\"%3A\"{username}\"%7D%5D%7D|OSMCha>)".format(
+                username=props.get('user').get('name'),
+                changeset_id=props.get('changeset').get('id'),
+                location_str=location_str,
             )
         )
 
