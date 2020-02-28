@@ -52,12 +52,12 @@ for feature in reversed(features):
                 locations.append(inside.get(t))
             locations = filter(None, locations)
             location_str = ', '.join(locations)
-            location_str = u' in {}!'.format(location_str)
+            location_str = ' in {}!'.format(location_str)
         else:
             location_str = '!'
 
         send_to_slack(
-            u"`<https://www.openstreetmap.org/user/{username}|{username}>` just made "
+            "`<https://www.openstreetmap.org/user/{username}|{username}>` just made "
             "their <https://www.openstreetmap.org/changeset/{changeset_id}|first edit>{location_str}"
             " (<https://osmcha.org/changesets/{changeset_id}?filters="
             "%7B\"users\"%3A%5B%7B\"label\"%3A\"{username}\"%2C\"value\"%3A\"{username}\"%7D%5D%7D|OSMCha>)".format(

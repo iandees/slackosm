@@ -4,7 +4,7 @@ import arrow
 import datetime
 import pyosm.model
 import boto3
-import cStringIO as StringIO
+import io
 import json
 import logging
 import sys
@@ -29,7 +29,7 @@ def load_existing_users():
         Key=existing_user_key,
     )
 
-    f = StringIO.StringIO(obj['Body'].read())
+    f = io.StringIO(obj['Body'].read())
     f.seek(0)
 
     bloom = ScalableBloomFilter.fromfile(f)
@@ -40,7 +40,7 @@ def load_existing_users():
 
 
 def push_existing_users(existing_user_bloom, sqn):
-    f = StringIO.StringIO()
+    f = io.ByteIO()
     existing_user_bloom.tofile(f)
     f.seek(0)
 
@@ -72,10 +72,10 @@ def get_way_center(way_id):
             stream=True,
         )
         resp.raw.decode_content = True
-        visible_versions = filter(
+        visible_versions = list(filter(
             lambda o: o.visible,
             (obj for obj in iter_osm_file(resp.raw)),
-        )
+        ))
         visible_version = visible_versions[-1]
 
         logger.info("Using version %s of way %s",
@@ -264,10 +264,7 @@ def update_feeds(new_users):
 
     # Chop off the features more than a day old
     now = arrow.get()
-    existing_geojson['features'] = filter(
-        lambda t: (now-arrow.get(t['properties']['timestamp'])).days == 0,
-        existing_geojson['features']
-    )
+    existing_geojson['features'] = [t for t in existing_geojson['features'] if (now-arrow.get(t['properties']['timestamp'])).days == 0]
 
     # TODO: Put together files of new users by day here?
     logger.info("Appending %s new users to new-users geojson", len(new_users))

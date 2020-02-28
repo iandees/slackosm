@@ -14,4 +14,4 @@ pyosm = "*"
 pybloom = {git = "https://github.com/jaybaird/python-bloomfilter.git",ref = "2bbe01ad"}
 
 [requires]
-python_full_version = "2"
+python_full_version = "3.7.6"
