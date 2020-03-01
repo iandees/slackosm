@@ -29,7 +29,7 @@ def load_existing_users():
         Key=existing_user_key,
     )
 
-    f = io.StringIO(obj['Body'].read())
+    f = io.BytesIO(obj['Body'].read())
     f.seek(0)
 
     bloom = ScalableBloomFilter.fromfile(f)
@@ -211,7 +211,7 @@ def find_representative_change(changes):
 
 def update_feeds(new_users):
     try:
-        gz = StringIO.StringIO()
+        gz = io.BytesIO()
         s3.download_fileobj(
             Bucket=existing_user_bucket,
             Key=new_users_key,
@@ -269,7 +269,7 @@ def update_feeds(new_users):
     # TODO: Put together files of new users by day here?
     logger.info("Appending %s new users to new-users geojson", len(new_users))
     # geojson = json.dumps(existing_geojson, separators=(',', ':'))
-    gz = StringIO.StringIO()
+    gz = io.BytesIO()
     gz_obj = gzip.GzipFile(fileobj=gz, mode='w')
     json.dump(existing_geojson, gz_obj, separators=(',', ':'))
     gz_obj.close()
