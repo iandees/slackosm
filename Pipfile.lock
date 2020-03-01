@@ -24,18 +24,18 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:4d7fb8028bd6cc431b2381f7ddc019a2376bed742ae480339b1bc8b347b3e402",
-                "sha256:acd8c19af1f82cfa011baed100f1659c1dc22daaeeec8d6db0567a4a1bfa103f"
+                "sha256:41cb779ff393a9a0a3e9dccce7689ec10c383c18deb5c69059181db8c0ccecc3",
+                "sha256:b21d781a7fb0bfa50771362c3495e30dc3cddd7e91d65c21bcb9fe37acf36b1e"
             ],
             "index": "pypi",
-            "version": "==1.12.9"
+            "version": "==1.12.11"
         },
         "botocore": {
             "hashes": [
-                "sha256:6a62f52fff679a889ba00191ef6b3de6b5b54e1af9e0056af50931bd2d1fdaa8",
-                "sha256:bce789daa7ee2af73c8f63f5713b5058d4698987575f236ca4df3c91c53bb34c"
+                "sha256:35d553b8975a3810010fabb885e42d1bbc97bdae52c873f7640a2dd87772c455",
+                "sha256:87a53301ee9e32e776d2d805c121753091fbddc3457dfdb8d6bdf7dbd945295a"
             ],
-            "version": "==1.15.9"
+            "version": "==1.15.11"
         },
         "certifi": {
             "hashes": [
@@ -111,10 +111,10 @@
         },
         "pyosm": {
             "hashes": [
-                "sha256:31e030f81ebc21a41e3148e897a0a0f1baeb0d6a8601ee38dbe82f4939d8263c"
+                "sha256:1eeb5542ced0c51278f21168f08055a0de612ae232bfbbe08ea5be4445d13ccf"
             ],
             "index": "pypi",
-            "version": "==0.6.1"
+            "version": "==1.0.0"
         },
         "python-dateutil": {
             "hashes": [
