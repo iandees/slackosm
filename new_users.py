@@ -270,10 +270,11 @@ def update_feeds(new_users):
 
     # TODO: Put together files of new users by day here?
     logger.info("Appending %s new users to new-users geojson", len(new_users))
-    # geojson = json.dumps(existing_geojson, separators=(',', ':'))
+    json_str = json.dumps(existing_geojson, separators=(',', ':'))
+    json_bytes = json_str.encode('utf8')
     gz = io.BytesIO()
-    gz_obj = gzip.GzipFile(fileobj=gz, mode='w')
-    json.dump(existing_geojson, gz_obj, separators=(',', ':'))
+    gz_obj = gzip.GzipFile(fileobj=gz, mode='wt')
+    gz_obj.write(json_bytes)
     gz_obj.close()
     gz.seek(0)
     s3.upload_fileobj(
