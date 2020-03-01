@@ -40,7 +40,7 @@ def load_existing_users():
 
 
 def push_existing_users(existing_user_bloom, sqn):
-    f = io.ByteIO()
+    f = io.BytesIO()
     existing_user_bloom.tofile(f)
     f.seek(0)
 
