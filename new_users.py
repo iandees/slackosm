@@ -191,6 +191,7 @@ def find_representative_change(changes):
     # 4. a relation
 
     def ordering_fn(tpl):
+        logger.info("tpl: %s", tpl)
         if tpl[0] in ('create', 'modify'):
             if isinstance(tpl[1], pyosm.model.Node):
                 return 1
