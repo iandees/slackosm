@@ -294,12 +294,8 @@ def main():
 
     for verb, obj in iter_osm_stream(start_sqn=start_sqn):
         if isinstance(obj, pyosm.model.Finished):
-            # Strip out any users that made changes this minute
-            # who we've seen before
             for uid, changes in user_to_objects.items():
-                if uid in existing:
-                    del user_to_objects[uid]
-                else:
+                if uid not in existing:
                     existing.add(uid)
                     logger.info(
                         "New user %s found in changeset %s",
