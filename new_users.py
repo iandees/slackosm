@@ -191,12 +191,13 @@ def find_representative_change(changes):
     # 4. a relation
 
     def ordering_fn(tpl):
-        logger.info("tpl: %s", tpl)
         if tpl[0] in ('create', 'modify'):
             if isinstance(tpl[1], pyosm.model.Node):
                 return 1
             elif isinstance(tpl[1], pyosm.model.Way):
                 return 2
+            else:
+                return 5
         elif tpl[0] in ('delete',):
             if isinstance(tpl[1], pyosm.model.Node):
                 return 3
