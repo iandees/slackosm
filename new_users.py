@@ -273,7 +273,7 @@ def update_feeds(new_users):
     json_str = json.dumps(existing_geojson, separators=(',', ':'))
     json_bytes = json_str.encode('utf8')
     gz = io.BytesIO()
-    gz_obj = gzip.GzipFile(fileobj=gz, mode='wt')
+    gz_obj = gzip.GzipFile(fileobj=gz, mode='w')
     gz_obj.write(json_bytes)
     gz_obj.close()
     gz.seek(0)
